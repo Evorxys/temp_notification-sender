@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flask Notification App</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>📱 Flask Notification App</h1>
+        <p>Notifications will appear on your Android Chrome browser.</p>
+        <button id="manualNotify">Show Notification Now</button>
+    </div>
+
+    <script>
+        // Request notification permission on load
+        document.addEventListener("DOMContentLoaded", () => {
+            if ("Notification" in window) {
+                Notification.requestPermission().then(permission => {
+                    console.log("Notification permission:", permission);
+                    if (permission === "granted") {
+                        // Timed notification after 10 seconds
+                        setTimeout(() => {
+                            showNotification("⏰ Timed Notification", "This is your timed alert!");
+                        }, 10000);
+                    }
+                });
+            } else {
+                alert("Your browser does not support notifications.");
+            }
+        });
+
+        // Function to show a notification
+        function showNotification(title, body) {
+            if (Notification.permission === "granted") {
+                const options = {
+                    body: body,
+                    icon: "https://cdn-icons-png.flaticon.com/512/1827/1827370.png", // Optional icon
+                    vibrate: [200, 100, 200]
+                };
+                new Notification(title, options);
+            } else {
+                alert("Please enable notification permissions.");
+            }
+        }
+
+        // Manual notification button
+        document.getElementById("manualNotify").addEventListener("click", () => {
+            showNotification("📢 Manual Notification", "This notification was triggered by a button click!");
+        });
+    </script>
+</body>
+</html>
