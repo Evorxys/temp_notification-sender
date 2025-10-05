@@ -13,42 +13,55 @@
         <button id="manualNotify">Show Notification Now</button>
     </div>
 
-    <script>
-        // Request notification permission on load
-        document.addEventListener("DOMContentLoaded", () => {
-            if ("Notification" in window) {
-                Notification.requestPermission().then(permission => {
-                    console.log("Notification permission:", permission);
-                    if (permission === "granted") {
-                        // Timed notification after 10 seconds
-                        setTimeout(() => {
-                            showNotification("⏰ Timed Notification", "This is your timed alert!");
-                        }, 10000);
-                    }
-                });
-            } else {
-                alert("Your browser does not support notifications.");
-            }
-        });
+<script>
+async function requestPermission() {
+    if (!("Notification" in window)) {
+        alert("Notifications are not supported by your browser.");
+        return;
+    }
 
-        // Function to show a notification
-        function showNotification(title, body) {
-            if (Notification.permission === "granted") {
-                const options = {
-                    body: body,
-                    icon: "https://cdn-icons-png.flaticon.com/512/1827/1827370.png", // Optional icon
-                    vibrate: [200, 100, 200]
-                };
-                new Notification(title, options);
-            } else {
-                alert("Please enable notification permissions.");
-            }
+    let permission = Notification.permission;
+    if (permission !== "granted") {
+        permission = await Notification.requestPermission();
+    }
+
+    if (permission === "granted") {
+        console.log("✅ Notification permission granted");
+        scheduleNotification();
+    } else {
+        alert("Please enable notifications in your browser settings.");
+    }
+}
+
+function showNotification(title, body) {
+    const options = {
+        body: body,
+        icon: "https://cdn-icons-png.flaticon.com/512/1827/1827370.png",
+        vibrate: [200, 100, 200],
+        requireInteraction: false // auto-dismiss
+    };
+    new Notification(title, options);
+}
+
+function scheduleNotification() {
+    // Timed notification after 10 seconds
+    setTimeout(() => {
+        showNotification("⏰ Reminder", "This is your timed notification!");
+    }, 10000);
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    requestPermission();
+
+    document.getElementById("manualNotify").addEventListener("click", () => {
+        if (Notification.permission === "granted") {
+            showNotification("📢 Manual Notification", "You clicked the button!");
+        } else {
+            alert("Please enable notifications first.");
         }
+    });
+});
+</script>
 
-        // Manual notification button
-        document.getElementById("manualNotify").addEventListener("click", () => {
-            showNotification("📢 Manual Notification", "This notification was triggered by a button click!");
-        });
-    </script>
 </body>
 </html>
