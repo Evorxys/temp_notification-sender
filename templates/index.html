@@ -17,10 +17,10 @@
 async function registerServiceWorker() {
     if ('serviceWorker' in navigator) {
         try {
-            await navigator.serviceWorker.register('/static/sw.js');
-            console.log("✅ Service Worker registered");
+            const registration = await navigator.serviceWorker.register('/sw.js');
+            console.log("✅ Service Worker registered:", registration);
         } catch (error) {
-            console.error("Service Worker registration failed:", error);
+            console.error("❌ Service Worker registration failed:", error);
         }
     } else {
         alert("Service workers are not supported in this browser.");
@@ -42,7 +42,7 @@ async function showNotification(title, body) {
             vibrate: [200, 100, 200]
         });
     } else {
-        alert("No service worker registration found.");
+        alert("⚠️ No service worker registration found.");
     }
 }
 
@@ -62,7 +62,5 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
 });
 </script>
-
-
 </body>
 </html>
