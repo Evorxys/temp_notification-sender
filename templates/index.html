@@ -14,54 +14,55 @@
     </div>
 
 <script>
-async function requestPermission() {
-    if (!("Notification" in window)) {
-        alert("Notifications are not supported by your browser.");
-        return;
+async function registerServiceWorker() {
+    if ('serviceWorker' in navigator) {
+        try {
+            await navigator.serviceWorker.register('/static/sw.js');
+            console.log("✅ Service Worker registered");
+        } catch (error) {
+            console.error("Service Worker registration failed:", error);
+        }
+    } else {
+        alert("Service workers are not supported in this browser.");
     }
+}
 
-    let permission = Notification.permission;
-    if (permission !== "granted") {
-        permission = await Notification.requestPermission();
+async function requestNotificationPermission() {
+    const permission = await Notification.requestPermission();
+    console.log("Notification permission:", permission);
+    return permission;
+}
+
+async function showNotification(title, body) {
+    const registration = await navigator.serviceWorker.getRegistration();
+    if (registration) {
+        registration.showNotification(title, {
+            body: body,
+            icon: "https://cdn-icons-png.flaticon.com/512/1827/1827370.png",
+            vibrate: [200, 100, 200]
+        });
+    } else {
+        alert("No service worker registration found.");
     }
+}
+
+document.addEventListener("DOMContentLoaded", async () => {
+    await registerServiceWorker();
+    const permission = await requestNotificationPermission();
 
     if (permission === "granted") {
-        console.log("✅ Notification permission granted");
-        scheduleNotification();
-    } else {
-        alert("Please enable notifications in your browser settings.");
+        // Timed notification after 10 seconds
+        setTimeout(() => {
+            showNotification("⏰ Timed Notification", "This is your timed alert!");
+        }, 10000);
     }
-}
-
-function showNotification(title, body) {
-    const options = {
-        body: body,
-        icon: "https://cdn-icons-png.flaticon.com/512/1827/1827370.png",
-        vibrate: [200, 100, 200],
-        requireInteraction: false // auto-dismiss
-    };
-    new Notification(title, options);
-}
-
-function scheduleNotification() {
-    // Timed notification after 10 seconds
-    setTimeout(() => {
-        showNotification("⏰ Reminder", "This is your timed notification!");
-    }, 10000);
-}
-
-document.addEventListener("DOMContentLoaded", () => {
-    requestPermission();
 
     document.getElementById("manualNotify").addEventListener("click", () => {
-        if (Notification.permission === "granted") {
-            showNotification("📢 Manual Notification", "You clicked the button!");
-        } else {
-            alert("Please enable notifications first.");
-        }
+        showNotification("📢 Manual Notification", "You clicked the button!");
     });
 });
 </script>
+
 
 </body>
 </html>
